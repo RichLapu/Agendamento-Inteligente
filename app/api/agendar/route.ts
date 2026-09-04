@@ -11,9 +11,10 @@ export async function POST(req: Request) {
     const { prompt } = await req.json();
     const dataAtual = new Date().toLocaleDateString('pt-BR');
 
-    // 1. Extração utilizando o modelo original que estava funcionando
+    // Cronômetro 1: Tempo de resposta do Google Gemini
+    console.time('Tempo_IA');
     const resultado = await generateObject({
-      model: google('gemini-3.6-flash'),
+      model: google('gemini-3.6-flash'), // Mantendo a versão que funciona no seu ambiente
       system: `Hoje é ${dataAtual}. Extraia os dados. 
                Regra 1: Data SEMPRE no formato YYYY-MM-DD. 
                Regra 2: Hora SEMPRE em HH:MM (use 00:00 se não houver).
@@ -28,12 +29,13 @@ export async function POST(req: Request) {
         categoria: z.string().nullable().optional(),
       }),
     });
+    console.timeEnd('Tempo_IA');
     
-    // 2. Validação segura
     const cat = resultado.object.categoria?.toLowerCase() || 'pessoal';
     const categoriaFinal = ['trabalho', 'estudos', 'pessoal'].includes(cat) ? cat : 'pessoal';
 
-    // 3. Salvamento na AWS
+    // Cronômetro 2: Tempo de gravação no MySQL (AWS RDS)
+    console.time('Tempo_AWS');
     const novoEvento = await prisma.evento.create({
       data: {
         titulo: resultado.object.titulo,
@@ -44,6 +46,7 @@ export async function POST(req: Request) {
         categoria: categoriaFinal,
       },
     });
+    console.timeEnd('Tempo_AWS');
 
     return NextResponse.json({ sucesso: true, dados: novoEvento });
   } catch (error: any) {
