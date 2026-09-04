@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model agenda_eventos {
+  id               Int       @id @default(autoincrement())
+  colaborador_id   Int
+  nome_externo     String?   @db.VarChar(150)
+  titulo           String    @db.VarChar(150)
+  data_hora_inicio DateTime  @db.DateTime(0)
+  data_hora_fim    DateTime  @db.DateTime(0)
+  cor              String?   @default("#4e73df") @db.VarChar(20)
+  observacoes      String?   @db.Text
+  status           String?   @default("agendado") @db.VarChar(20)
+  data_registro    DateTime? @default(now()) @db.Timestamp(0)
+  usuarios         usuarios  @relation(fields: [colaborador_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "agenda_eventos_ibfk_1")
+
+  @@index([colaborador_id], map: "colaborador_id")
+}
+
+model categories {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  name          String          @db.VarChar(255)
+  color         String          @default("secondary") @db.VarChar(255)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  category_note category_note[]
+}
+
+model category_note {
+  id          BigInt     @id @default(autoincrement()) @db.UnsignedBigInt
+  note_id     BigInt     @db.UnsignedBigInt
+  category_id BigInt     @db.UnsignedBigInt
+  categories  categories @relation(fields: [category_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "category_note_category_id_foreign")
+  notes       notes      @relation(fields: [note_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "category_note_note_id_foreign")
+
+  @@index([category_id], map: "category_note_category_id_foreign")
+  @@index([note_id], map: "category_note_note_id_foreign")
+}
+
+model clientes {
+  id            Int                   @id @default(autoincrement())
+  tipo_pessoa   clientes_tipo_pessoa? @default(PF)
+  nome_razao    String                @db.VarChar(150)
+  nome_fantasia String?               @db.VarChar(150)
+  cpf_cnpj      String?               @db.VarChar(20)
+  rg_ie         String?               @db.VarChar(50)
+  cep           String?               @db.VarChar(10)
+  endereco      String?               @db.VarChar(150)
+  numero        String?               @db.VarChar(20)
+  complemento   String?               @db.VarChar(100)
+  bairro        String?               @db.VarChar(100)
+  cidade        String?               @db.VarChar(100)
+  uf            String?               @db.Char(2)
+  email         String?               @db.VarChar(100)
+  telefone      String?               @db.VarChar(20)
+  celular_whats String?               @db.VarChar(20)
+  observacao    String?               @db.Text
+  status        String?               @default("ativo") @db.VarChar(20)
+  data_cadastro DateTime?             @default(now()) @db.Timestamp(0)
+}
+
+model estoque_itens {
+  id                    Int                     @id @default(autoincrement())
+  codigo_sku            String?                 @db.VarChar(50)
+  nome                  String                  @db.VarChar(100)
+  categoria             String?                 @db.VarChar(50)
+  descricao             String?                 @db.Text
+  preco_custo           Decimal?                @default(0.00) @db.Decimal(10, 2)
+  preco_venda           Decimal?                @default(0.00) @db.Decimal(10, 2)
+  estoque_minimo        Int?                    @default(0)
+  quantidade_atual      Int?                    @default(0)
+  status                String?                 @default("ativo") @db.VarChar(20)
+  marca                 String?                 @db.VarChar(50)
+  fornecedor_id         Int?
+  fornecedores          fornecedores?           @relation(fields: [fornecedor_id], references: [id], onUpdate: NoAction, map: "fk_fornecedor")
+  estoque_movimentacoes estoque_movimentacoes[]
+
+  @@index([fornecedor_id], map: "fk_fornecedor")
+}
+
+model estoque_movimentacoes {
+  id                Int                        @id @default(autoincrement())
+  item_id           Int
+  usuario_id        Int
+  tipo              estoque_movimentacoes_tipo
+  quantidade        Int
+  observacao        String?                    @db.VarChar(255)
+  data_movimentacao DateTime?                  @default(now()) @db.Timestamp(0)
+  status            String?                    @default("concluido") @db.VarChar(20)
+  editado_por       Int?
+  editado_em        DateTime?                  @db.Timestamp(0)
+  estoque_itens     estoque_itens              @relation(fields: [item_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "estoque_movimentacoes_ibfk_1")
+  usuarios          usuarios                   @relation(fields: [usuario_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "estoque_movimentacoes_ibfk_2")
+
+  @@index([item_id], map: "item_id")
+  @@index([usuario_id], map: "usuario_id")
+}
+
+model financeiro_movimentacoes {
+  id                Int                           @id @default(autoincrement())
+  descricao         String                        @db.VarChar(150)
+  valor             Decimal                       @db.Decimal(10, 2)
+  tipo              financeiro_movimentacoes_tipo
+  categoria         String                        @db.VarChar(100)
+  data_movimentacao DateTime                      @db.Date
+  status            String?                       @default("efetivado") @db.VarChar(20)
+  data_registro     DateTime?                     @default(now()) @db.Timestamp(0)
+  usuario_id        Int?
+  editado_por       Int?
+  editado_em        DateTime?                     @db.Timestamp(0)
+}
+
+model fornecedores {
+  id            Int             @id @default(autoincrement())
+  nome_fantasia String          @db.VarChar(100)
+  cnpj          String?         @db.VarChar(20)
+  telefone      String?         @db.VarChar(20)
+  email         String?         @db.VarChar(100)
+  status        String?         @default("ativo") @db.VarChar(20)
+  estoque_itens estoque_itens[]
+}
+
+model migrations {
+  id        Int    @id @default(autoincrement()) @db.UnsignedInt
+  migration String @db.VarChar(255)
+  batch     Int
+}
+
+model notes {
+  id            BigInt          @id @default(autoincrement()) @db.UnsignedBigInt
+  position      Int             @default(0)
+  public_id     String?         @unique(map: "notes_public_id_unique") @db.Char(36)
+  user_id       Int?
+  title         String?         @db.VarChar(200)
+  text          String?         @db.VarChar(3000)
+  is_protected  Boolean         @default(false)
+  reminder_at   DateTime?       @db.DateTime(0)
+  is_pinned     Boolean         @default(false)
+  created_at    DateTime?       @db.Timestamp(0)
+  updated_at    DateTime?       @db.Timestamp(0)
+  expires_at    DateTime?       @db.Timestamp(0)
+  deleted_at    DateTime?       @db.Timestamp(0)
+  category_note category_note[]
+}
+
+model users {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  username   String?   @db.VarChar(50)
+  password   String?   @db.VarChar(200)
+  last_login DateTime? @db.DateTime(0)
+  created_at DateTime? @db.Timestamp(0)
+  updated_at DateTime? @db.Timestamp(0)
+  deleted_at DateTime? @db.Timestamp(0)
+}
+
+model usuarios {
+  id                    Int                     @id @default(autoincrement())
+  nome                  String                  @db.VarChar(100)
+  email                 String                  @unique(map: "email") @db.VarChar(100)
+  senha                 String                  @db.VarChar(255)
+  role                  String                  @db.VarChar(50)
+  status                String?                 @default("ativo") @db.VarChar(20)
+  permissoes            String?                 @default("mod-cadastro,mod-listar") @db.VarChar(255)
+  agenda_eventos        agenda_eventos[]
+  estoque_movimentacoes estoque_movimentacoes[]
+}
+
+enum clientes_tipo_pessoa {
+  PF
+  PJ
+}
+
+enum estoque_movimentacoes_tipo {
+  entrada
+  retirada
+  devolucao
+}
+
+enum financeiro_movimentacoes_tipo {
+  receita
+  despesa
+}
+
+model Evento {
+  id          Int      @id @default(autoincrement())
+  titulo      String
+  data        String   
+  hora        String   
+  dataFim     String?  
+  horaFim     String?  
+  categoria   String?  @default("pessoal") // Novo campo
+  criadoEm    DateTime @default(now())
+
+  @@map("eventos")
+}
