@@ -37,7 +37,7 @@ Uma aplicação web de calendário moderno que utiliza Inteligência Artificial 
 **1. Clone o repositório**
 ```bash
 git clone [https://github.com/RichLapu/Agendamento-Inteligente.git](https://github.com/RichLapu/Agendamento-Inteligente.git)
-```
+```c
 
 **2. Instale as dependências**
 ```bash
