@@ -14,7 +14,7 @@ export async function POST(req: Request) {
     // Cronômetro 1: Tempo de resposta do Google Gemini
     console.time('Tempo_IA');
     const resultado = await generateObject({
-      model: google('gemini-2.5-flash'),
+      model: google('gemini-3.6-flash'),
       system: `Hoje é ${dataAtual}. Extraia os dados. 
                Regra 1: Data SEMPRE no formato YYYY-MM-DD. 
                Regra 2: Hora SEMPRE em HH:MM (use 00:00 se não houver).
