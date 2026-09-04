@@ -151,7 +151,7 @@ export default function Home() {
             <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl">✨</span>
             <input 
               className="w-full bg-slate-50 border border-slate-200 p-4 pl-12 rounded-xl text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all text-lg"
-              placeholder='Ex: "Prova final da UniCesumar quinta-feira das 19h as 22h30"'
+              placeholder='Ex: "Prova final da faculdade quinta-feira das 19h as 22h30"'
               value={prompt}
               onChange={(e) => setPrompt(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && enviarAgendamento()}
