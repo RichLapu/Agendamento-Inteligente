@@ -52,20 +52,35 @@ export default function Home() {
   useEffect(() => { buscarEventos(); }, []);
 
   const enviarAgendamento = () => {
-    if (!prompt) return;
+    if (!prompt.trim() || carregando) return;
+
+    // 1. Criação Otimista Local (Aparece na hora na tela)
+    const textoTemp = prompt;
+    const dataHojeStr = new Date().toISOString().split('T')[0];
+    
+    const eventoTemporario = {
+      id: 'temp-' + Date.now(),
+      title: `⏳ Processando IA...`,
+      start: new Date(),
+      end: new Date(),
+      dadosOriginais: { titulo: textoTemp, data: dataHojeStr, hora: '00:00', categoria: 'pessoal' }
+    };
+
+    setEventos((prev) => [...prev, eventoTemporario]);
+    setPrompt('');
     setCarregando(true);
 
+    // 2. Execução em Background
     const promessaAgendamento = async () => {
       const res = await fetch('/api/agendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt }),
+        body: JSON.stringify({ prompt: textoTemp }),
       });
       
       if (!res.ok) throw new Error('Falha na IA');
       
-      await buscarEventos();
-      setPrompt('');
+      await buscarEventos(); // Substitui o temporário pelos dados reais da AWS
       setCarregando(false);
     };
 
@@ -74,6 +89,7 @@ export default function Home() {
       success: 'Compromisso agendado com sucesso!',
       error: () => {
         setCarregando(false);
+        buscarEventos(); // Remove o temporário em caso de erro
         return 'Erro ao processar o agendamento.';
       },
     });
