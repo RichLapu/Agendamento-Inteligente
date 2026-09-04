@@ -213,17 +213,17 @@ export default function Home() {
             </h2>
             
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Título</label>
+              <label className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Título:</label>
               <input className="border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" value={editTitulo} onChange={(e) => setEditTitulo(e.target.value)} />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Data</label>
+              <label className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Data:</label>
               <input className="border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" type="date" value={editData} onChange={(e) => setEditData(e.target.value)} />
             </div>
 
             <div className="flex flex-col gap-1">
-              <label className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Início</label>
+              <label className="text-xs text-slate-500 font-semibold uppercase tracking-wider">Horário:</label>
               <input className="border border-slate-200 p-3 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" type="time" value={editHora} onChange={(e) => setEditHora(e.target.value)} />
             </div>
             
