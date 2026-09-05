@@ -71,26 +71,29 @@ export default function Home() {
     setCarregando(true);
 
     // 2. Execução em Background
-    const promessaAgendamento = async () => {
+      const promessaAgendamento = async () => {
       const res = await fetch('/api/agendar', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ prompt: textoTemp }),
       });
       
-      if (!res.ok) throw new Error('Falha na IA');
+      if (!res.ok) {
+        const erroDados = await res.json();
+        throw new Error(erroDados.erro || 'Falha na IA'); // Lança a mensagem específica
+      }
       
-      await buscarEventos(); // Substitui o temporário pelos dados reais da AWS
+      await buscarEventos();
       setCarregando(false);
     };
 
     toast.promise(promessaAgendamento(), {
       loading: '✨ A IA está organizando sua agenda...',
       success: 'Compromisso agendado com sucesso!',
-      error: () => {
+      error: (err) => {
         setCarregando(false);
-        buscarEventos(); // Remove o temporário em caso de erro
-        return 'Erro ao processar o agendamento.';
+        buscarEventos(); // Remove o temporário
+        return err.message; // Mostra o aviso de limite na tela
       },
     });
   };

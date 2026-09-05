@@ -71,6 +71,17 @@ export async function POST(req: Request) {
     return NextResponse.json({ sucesso: true, dados: novoEvento });
   } catch (error: any) {
     console.error(">>> MOTIVO DA FALHA:", error.message || error);
-    return NextResponse.json({ erro: 'Falha interna' }, { status: 500 });
+    
+    const msgErro = String(error.message || '').toLowerCase();
+    
+    // Detecta se o erro foi causado por falta de tokens/cota
+    if (msgErro.includes('quota') || msgErro.includes('rate limit') || msgErro.includes('429')) {
+      return NextResponse.json(
+        { erro: '⚠️ Limite gratuito da IA atingido. Tente novamente em 1 minuto.' }, 
+        { status: 429 }
+      );
+    }
+
+    return NextResponse.json({ erro: 'Falha interna no servidor.' }, { status: 500 });
   }
 }
