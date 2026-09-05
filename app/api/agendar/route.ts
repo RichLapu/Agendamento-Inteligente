@@ -21,7 +21,7 @@ export async function POST(req: Request) {
 
     console.time('Tempo_IA');
     const resultado = await generateObject({
-      model: google('gemini-3.6-flash'),
+      model: google('gemini-3.5-flash-lite'),
       system: `Você é um assistente de agenda de alta precisão. 
       Contexto Temporal: ${contextoData}.
       
