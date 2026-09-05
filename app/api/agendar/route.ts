@@ -13,12 +13,32 @@ export async function POST(req: Request) {
 
     // Cronômetro 1: Tempo de resposta do Google Gemini
     console.time('Tempo_IA');
+    const hoje = new Date();
+    const contextoData = hoje.toLocaleDateString('pt-BR', { 
+      weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+    }); 
+    // Isso gera algo como: "Hoje é sexta-feira, 4 de setembro de 2026"
+
+    console.time('Tempo_IA');
     const resultado = await generateObject({
       model: google('gemini-3.6-flash'),
-      system: `Hoje é ${dataAtual}. Extraia os dados. 
-               Regra 1: Data SEMPRE no formato YYYY-MM-DD. 
-               Regra 2: Hora SEMPRE em HH:MM (use 00:00 se não houver).
-               Regra 3: Se não tiver fim, retorne null.`,
+      system: `Você é um assistente de agenda de alta precisão. 
+      Contexto Temporal: ${contextoData}.
+      
+      Regras Estritas de Formatação:
+      - Data: OBRIGATORIAMENTE no formato YYYY-MM-DD. Se o usuário disser "dia 25" ou "terça", calcule a data exata com base no Contexto Temporal de hoje.
+      - Hora: OBRIGATORIAMENTE no formato HH:MM (padrão 24h). 
+      - Título: Seja direto, removendo termos como "marcar", "agendar", "lembrar de".
+      
+      Exemplos de Saída Esperada:
+      - Entrada: "evento dia 25 as 9 horas"
+      -> titulo: "evento", data: "YYYY-MM-25", hora: "09:00"
+      
+      - Entrada: "reunião de alinhamento quarta as 15h"
+      -> titulo: "reunião de alinhamento", data: "YYYY-MM-DD" (calculado), hora: "15:00"
+      
+      - Entrada: "almoçar com cliente meio dia amanhã"
+      -> titulo: "almoço com cliente", data: "YYYY-MM-DD" (dia seguinte), hora: "12:00"`,
       prompt: prompt,
       schema: z.object({
         titulo: z.string(),
